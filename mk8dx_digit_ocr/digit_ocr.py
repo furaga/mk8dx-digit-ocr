@@ -178,12 +178,16 @@ SEGMENTS2DIGIT = {
 
 def ison(roi_bin, is_vertical: bool, ret_val: int) -> int:
     if is_vertical:
-        thresh = roi_bin.shape[0] * 0.6
-        if (np.count_nonzero(roi_bin, axis=0) > thresh).any():
+        y1 = int(roi_bin.shape[0] * 0.1)
+        y2 = int(roi_bin.shape[0] * 0.9)
+        score = np.max(np.count_nonzero(roi_bin[y1:y2], axis=0) / (y2 - y1))
+        if score > 0.7:
             return ret_val
     else:
-        thresh = roi_bin.shape[1] * 0.7
-        if (np.count_nonzero(roi_bin, axis=1) > thresh).any():
+        x1 = int(roi_bin.shape[1] * 0.1)
+        x2 = int(roi_bin.shape[1] * 0.9)
+        score = np.max(np.count_nonzero(roi_bin[:, x1:x2], axis=1) / (x2 - x1))
+        if score > 0.7:
             return ret_val
     return 0
 
@@ -227,10 +231,12 @@ def rod2digit(rod, rod_bin):
     return read_digit
 
 
-def resize_show_img(img, target_width=256):
-    ratio = target_width / img.shape[1]
-    return cv2.resize(img, None, fx=ratio, fy=ratio, interpolation=cv2.INTER_NEAREST)
-
+def resize_show_img(img, target_height=50, char_height=0):
+    if char_height <= 0:
+        char_height = img.shape[0]
+    ratio = target_height / char_height
+    resized = cv2.resize(img, None, fx=ratio, fy=ratio, interpolation=cv2.INTER_NEAREST)
+    return resized
 
 def detect_white_digit(roi_gray, verbose=False):
     roi_gray = roi_gray.copy()
@@ -276,6 +282,7 @@ def detect_white_digit(roi_gray, verbose=False):
 
     _, labels, stats = cv2.connectedComponentsWithStats(roi_bin)[:3]
 
+    char_height = 0
     for i, stat in enumerate(stats):
         area = stat[-1]
         if (
@@ -292,13 +299,16 @@ def detect_white_digit(roi_gray, verbose=False):
             roi_bin[i == labels] = 0
             continue
 
+        char_height = max(char_height,  max(stat[2], stat[3]))
+
     if verbose:
         cv2.imshow("filter components", resize_show_img(roi_bin))
 
-    roi_bin_big = resize_show_img(roi_bin)
-    kernel_size = int(5 * 256 / roi_bin.shape[1])
-    kernel_size = max(5, 2 * (kernel_size // 2) + 1)
-    kernel = np.ones((kernel_size, kernel_size), np.uint8)
+    roi_bin_big = resize_show_img(roi_bin, char_height=char_height)
+    char_height_big = char_height * roi_bin_big.shape[0] / roi_bin.shape[0]
+    kernel_size = int(3 * char_height_big / 50)
+    kernel_size = max(3, 2 * (kernel_size // 2) + 1)
+    kernel = np.ones((2 * kernel_size, kernel_size), np.uint8)
     roi_bin_big = cv2.morphologyEx(roi_bin_big, cv2.MORPH_CLOSE, kernel)
     roi_bin_big = cv2.resize(
         roi_bin_big,
@@ -331,7 +341,7 @@ def detect_white_digit(roi_gray, verbose=False):
         cropped = roi_bin_big[top:bottom, left:right]
         digit = rod2digit(rod, cropped)
         if verbose:
-            print("digit =", digit)
+            print("digit =", digit, flush=True)
             cv2.imshow(f"char {i}", resize_show_img(cropped))
         num = 10 * num + digit
 
