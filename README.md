@@ -18,7 +18,7 @@ Requires: opencv-python (from pip)
 
 ## Usage
 
-See python scripts in the [test](https://github.com/furaga/mk8dx-digit-ocr/tree/master/samples) directory.
+See python scripts in the [test](https://github.com/furaga/mk8dx-digit-ocr/tree/master/test) directory.
 
 The following is a simple example.
 
