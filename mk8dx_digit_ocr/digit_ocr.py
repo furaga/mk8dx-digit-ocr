@@ -204,6 +204,9 @@ def detect_digit(roi_gray, verbose=False):
 
     return True, num
 
+# def main():
+#     print(sys.argv)
+
 
 if __name__ == "__main__":
     from pathlib import Path
