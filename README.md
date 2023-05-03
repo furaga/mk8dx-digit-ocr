@@ -31,7 +31,7 @@ $ python
 (True, 14660)
 ```
 
-<img src="https://github.com/furaga/mk8dx-digit-ocr/tree/master/doc/14660.png">
+<img src="https://raw.githubusercontent.com/furaga/mk8dx-digit-ocr/master/doc/14660.png">
 
 Note that `img` must be a cropped image that contains a single line of number. 
 
