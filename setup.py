@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="mk8dx_digit_ocr",
-    version="1.0.0",
+    version="1.0.1",
     packages=find_packages(),
     install_requires=[
         "opencv-python",
@@ -15,7 +15,7 @@ setup(
     },
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: Apache License",
+        "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
     author="furaga",
