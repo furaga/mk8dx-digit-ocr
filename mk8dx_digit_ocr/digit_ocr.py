@@ -238,6 +238,7 @@ def resize_show_img(img, target_height=50, char_height=0):
     resized = cv2.resize(img, None, fx=ratio, fy=ratio, interpolation=cv2.INTER_NEAREST)
     return resized
 
+
 def detect_white_digit(roi_gray, verbose=False):
     roi_gray = roi_gray.copy()
 
@@ -299,7 +300,7 @@ def detect_white_digit(roi_gray, verbose=False):
             roi_bin[i == labels] = 0
             continue
 
-        char_height = max(char_height,  max(stat[2], stat[3]))
+        char_height = max(char_height, max(stat[2], stat[3]))
 
     if verbose:
         cv2.imshow("filter components", resize_show_img(roi_bin))

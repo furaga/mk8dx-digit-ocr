@@ -18,7 +18,22 @@ Requires: opencv-python (from pip)
 
 ## Usage
 
-See python scripts in the [samples](https://github.com/furaga/mk8dx-digit-ocr/tree/master/samples) directory.
+See python scripts in the [test](https://github.com/furaga/mk8dx-digit-ocr/tree/master/samples) directory.
+
+The following is a simple example.
+
+```
+$ python
+>>> import mk8dx_digit_ocr
+>>> import cv2
+>>> img = cv2.imread("test/data/14660.png")
+>>> mk8dx_digit_ocr.detect_digit(img)
+(True, 14660)
+```
+
+<img src="doc/14660.png">
+
+Note that `img` must be a cropped image that contains a single line of number. 
 
 ## Problems?
 

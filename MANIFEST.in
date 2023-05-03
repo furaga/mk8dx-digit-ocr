@@ -1,2 +1,1 @@
-include README.md
-include LICENSE
+include mk8dx_digit_ocr/*
