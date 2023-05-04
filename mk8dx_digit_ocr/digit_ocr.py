@@ -200,6 +200,9 @@ def ison(roi_bin, is_vertical: bool, ret_val: int) -> int:
 
 def rod2digit(rod, rod_bin):
     height_rod, width_rod = rod_bin.shape
+    if height_rod < width_rod:
+        return -1
+
     _, labels, stats = cv2.connectedComponentsWithStats(rod_bin)[:3]
     # Remove tiny blobs.
     for i, stat in enumerate(stats):
@@ -226,6 +229,7 @@ def rod2digit(rod, rod_bin):
         read_digit = SEGMENTS2DIGIT[
             sum(list(map(ison, segments, is_verticals, ret_vals)))
         ]
+
     if (
         -1 == read_digit
         and np.max(np.count_nonzero(rod_bin, axis=0))
@@ -365,10 +369,13 @@ def detect_white_digit(roi_gray, verbose=False):
         num = 10 * num + digit
 
     if verbose:
-        #        print("result =", num)
         cv2.waitKey(0)
 
     return True, num
+
+
+def detect_black_digit(roi_gray, verbose=False):
+    return detect_white_digit(255 - roi_gray, verbose)
 
 
 def detect_digit(img, verbose=False):
@@ -388,37 +395,3 @@ def detect_digit(img, verbose=False):
     # detect as black colored digit
     ret, num = detect_white_digit(255 - img_gray, verbose)
     return ret, num
-
-
-# def main():
-#     print(sys.argv)
-
-
-if __name__ == "__main__":
-    from pathlib import Path
-
-    all_img_paths = Path("data/digital_testdata").glob("*.png")
-
-    gt = {
-        "001.png": 20780,
-        "002.png": 9526,
-    }
-
-    n_NG = 0
-
-    verbose = False
-    for img_path in all_img_paths:
-        if img_path.name not in gt:
-            continue
-        #        if img_path.name != "008_6.png":
-        # if img_path.name != "003_8.png":
-        #     continue
-        img = cv2.imread(str(img_path), cv2.IMREAD_GRAYSCALE)
-        ret, value = detect_digit(255 - img, verbose)
-        print(ret, value)
-        OK = "OK" if gt[img_path.name] == value else "NG"
-        if OK != "OK":
-            n_NG += 1
-        print(f"{OK} {img_path.name}: {value}")
-
-    print("# of NG =", n_NG)
