@@ -177,16 +177,22 @@ SEGMENTS2DIGIT = {
 
 
 def ison(roi_bin, is_vertical: bool, ret_val: int) -> int:
+    if min(roi_bin.shape[:2]) <= 0:
+        return 0
     if is_vertical:
         y1 = int(roi_bin.shape[0] * 0.1)
         y2 = int(roi_bin.shape[0] * 0.9)
-        score = np.max(np.count_nonzero(roi_bin[y1:y2], axis=0) / (y2 - y1))
+        if y1 >= y2:
+            return 0
+        score = np.max(np.count_nonzero(roi_bin[y1:y2], axis=0) / (y2 - y1 + 1e-4))
         if score > 0.7:
             return ret_val
     else:
         x1 = int(roi_bin.shape[1] * 0.1)
         x2 = int(roi_bin.shape[1] * 0.9)
-        score = np.max(np.count_nonzero(roi_bin[:, x1:x2], axis=1) / (x2 - x1))
+        if x1 >= x2:
+            return 0
+        score = np.max(np.count_nonzero(roi_bin[:, x1:x2], axis=1) / (x2 - x1 + 1e-4))
         if score > 0.7:
             return ret_val
     return 0
@@ -290,6 +296,18 @@ def detect_white_digit(roi_gray, verbose=False):
             area < width * height * 0.05
             and max(stat[2], stat[3]) < min(width, height) * 0.2
         ):
+            continue
+        if (
+            0 == min(stat[0], stat[1])
+            or width == stat[0] + stat[2]
+            or height == stat[1] + stat[3]
+        ):
+            continue
+        char_height = max(char_height, max(stat[2], stat[3]))
+
+    for i, stat in enumerate(stats):
+        area = stat[-1]
+        if area < width * height * 0.05 and max(stat[2], stat[3]) < char_height * 0.2:
             roi_bin[i == labels] = 0
             continue
         if (
@@ -299,8 +317,6 @@ def detect_white_digit(roi_gray, verbose=False):
         ):
             roi_bin[i == labels] = 0
             continue
-
-        char_height = max(char_height, max(stat[2], stat[3]))
 
     if verbose:
         cv2.imshow("filter components", resize_show_img(roi_bin))
@@ -341,6 +357,8 @@ def detect_white_digit(roi_gray, verbose=False):
         left, top, right, bottom, _ = rod
         cropped = roi_bin_big[top:bottom, left:right]
         digit = rod2digit(rod, cropped)
+        if digit < 0:
+            return False, -1
         if verbose:
             print("digit =", digit, flush=True)
             cv2.imshow(f"char {i}", resize_show_img(cropped))

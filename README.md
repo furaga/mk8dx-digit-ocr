@@ -10,7 +10,7 @@ GitHub project https://github.com/furaga/mk8dx-digit-ocr
 
 ## Installation
 
-Just run `pip3 install git+https://github.com/furaga/mk8dx-digit-ocr.git` in your Python venv or directly on your system.
+Just run `pip install git+https://github.com/furaga/mk8dx-digit-ocr.git` in your Python venv or directly on your system.
 
 For manual install, git clone the github repository and copy the directory mk8dx_digt_ocr in your python project root.
 
