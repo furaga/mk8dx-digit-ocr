@@ -357,11 +357,11 @@ def detect_white_digit(roi_gray, verbose=False):
         left, top, right, bottom, _ = rod
         cropped = roi_bin_big[top:bottom, left:right]
         digit = rod2digit(rod, cropped)
-        if digit < 0:
-            return False, -1
         if verbose:
             print("digit =", digit, flush=True)
             cv2.imshow(f"char {i}", resize_show_img(cropped))
+        if digit < 0:
+            return False, -1
         num = 10 * num + digit
 
     if verbose:
