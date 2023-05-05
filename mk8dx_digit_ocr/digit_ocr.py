@@ -359,6 +359,9 @@ def detect_white_digit(roi_gray, verbose=False):
         print("rods", rods)
     for i, rod in enumerate(rods):
         left, top, right, bottom, _ = rod
+        # ad-hoc: negative/rate_10019.pngを弾くための処置
+        if bottom - top < roi_bin_big.shape[0] / 3:
+            return False, -1
         cropped = roi_bin_big[top:bottom, left:right]
         digit = rod2digit(rod, cropped)
         if verbose:
